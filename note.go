@@ -19,10 +19,36 @@ func getNote(noteID int) (Note, error) {
 	return res, err
 }
 
+func someNotes(filter string) ([]Note, error) {
+	notes := []Note{}
+
+	rows, err := db.Query(`SELECT id, content FROM notes where content ~ $1 order by id `, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int
+		var content string
+
+		err = rows.Scan(&id, &content)
+		if err != nil {
+			return notes, err
+		}
+
+		currentNote := Note{ID: id, Content: content}
+
+		notes = append(notes, currentNote)
+	}
+
+	return notes, err
+}
+
 func allNotes() ([]Note, error) {
 	notes := []Note{}
 
-	rows, err := db.Query(`SELECT id, content FROM notes order by id`)
+	rows, err := db.Query(`SELECT id, content FROM notes order by id `)
 	if err != nil {
 		return nil, err
 	}

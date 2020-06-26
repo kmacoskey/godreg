@@ -42,7 +42,18 @@ func handleSaveNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleListNotes(w http.ResponseWriter, r *http.Request) {
-	notes, err := allNotes()
+	query := r.URL.Query()
+	searchStr := query.Get("search")
+
+	notes := []Note{}
+	var err error
+
+	if searchStr != "" {
+		notes, err = someNotes(searchStr)
+	} else {
+		notes, err = allNotes()
+	}
+
 	if err != nil {
 		renderErrorPage(w, err)
 		return
